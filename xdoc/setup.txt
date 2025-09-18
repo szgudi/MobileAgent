@@ -1,0 +1,55 @@
+PIXEL_ARGS='{"min_pixels":3136,"max_pixels":10035200}'
+IMAGE_LIMIT_ARGS='{"image": 2}'
+MP_SIZE=1
+MM_KWARGS=(
+    --mm-processor-kwargs $PIXEL_ARGS
+    --limit-mm-per-prompt $IMAGE_LIMIT_ARGS
+)
+
+CKPT='iic/GUI-Owl-7B'
+
+VLLM_USE_MODELSCOPE=true vllm serve $CKPT \
+    --max-num-batched-tokens 32768
+    --max-model-len 32768 ${MM_KWARGS[@]} \
+    --tensor-parallel-size $MP_SIZE \
+    --allowed-local-media-path '/' \
+    --port 4243
+
+
+~/Library/Android/sdk/emulator/emulator -avd AndroidWorldAvd -no-snapshot -grpc 8554
+
+cd Mobile-Agent-v3/android_world_v3
+pip install torch torchvision torchaudio
+
+sh run_guiowl.sh
+sh run_ma3.sh
+
+export OPENAI_API_KEY=EMPTY
+export GCP_API_KEY=your-key
+
+
+mkdir -p ~/miniconda3
+sudo wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+rm ~/miniconda3/miniconda.sh
+
+# Mac安装vllm
+conda create -n vllm_env python=3.12
+cd vllm
+pip install -r requirements/cpu.txt
+conda install cmake
+conda install ninja
+pip install -e .
+
+# Linux安装vllm
+pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu122
+
+
+cd Mobile-Agent-v3/mobile_v3
+python run_mobileagentv3.py \
+    --adb_path /Users/aaron/Library/Android/sdk/platform-tools/adb \
+    --api_key "EMPTY" \
+    --base_url "http://localhost:8000/v1" \
+    --model "iic/GUI-Owl-7B" \
+    --instruction "open_settings" \
+    --add_info ""
