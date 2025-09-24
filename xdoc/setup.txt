@@ -1,3 +1,23 @@
+nvcc --version
+nvidia-smi
+
+mkdir -p ~/miniconda3
+sudo wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+rm ~/miniconda3/miniconda.sh
+
+# Mac安装vllm
+conda create -n vllm_env python=3.12
+cd vllm
+pip install -r requirements/cpu.txt
+conda install cmake
+conda install ninja
+pip install -e .
+
+# Linux安装vllm
+pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu122
+pip install vllm --extra-index-url https://download.pytorch.org/whl/cu122
+
 PIXEL_ARGS='{"min_pixels":3136,"max_pixels":10035200}'
 IMAGE_LIMIT_ARGS='{"image": 2}'
 MP_SIZE=1
@@ -15,7 +35,6 @@ VLLM_USE_MODELSCOPE=true vllm serve $CKPT \
     --allowed-local-media-path '/' \
     --port 4243
 
-
 ~/Library/Android/sdk/emulator/emulator -avd AndroidWorldAvd -no-snapshot -grpc 8554
 
 cd Mobile-Agent-v3/android_world_v3
@@ -26,24 +45,6 @@ sh run_ma3.sh
 
 export OPENAI_API_KEY=EMPTY
 export GCP_API_KEY=your-key
-
-
-mkdir -p ~/miniconda3
-sudo wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
-bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
-rm ~/miniconda3/miniconda.sh
-
-# Mac安装vllm
-conda create -n vllm_env python=3.12
-cd vllm
-pip install -r requirements/cpu.txt
-conda install cmake
-conda install ninja
-pip install -e .
-
-# Linux安装vllm
-pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu122
-
 
 cd Mobile-Agent-v3/mobile_v3
 python run_mobileagentv3.py \

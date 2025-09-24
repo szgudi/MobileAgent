@@ -5,3 +5,4 @@ __pycache__/
 **/screenshot/*
 **/temp/*
 .env
+.idea
